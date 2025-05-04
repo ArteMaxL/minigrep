@@ -42,3 +42,60 @@ fn search<'a>(query: &str, content: &'a str) -> Vec<&'a str> {
     }
     result
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_config_new() {
+        let args = vec![
+            String::from("minigrep"),
+            String::from("archivo.txt"),
+            String::from("query"),
+        ];
+        let config = Config::new(&args);
+
+        assert_eq!(config.filename, "archivo.txt");
+        assert_eq!(config.query, "query");
+    }
+
+    #[test]
+    fn test_search_with_results() {
+        let query = "Rust";
+        let content = "\
+Rust es genial.
+Aprender Rust es divertido.
+El lenguaje Rust es rápido.";
+
+        let results = search(query, content);
+
+        assert_eq!(results, vec![
+            "Rust es genial.",
+            "Aprender Rust es divertido.",
+            "El lenguaje Rust es rápido."
+        ]);
+    }
+
+    #[test]
+    fn test_search_no_results() {
+        let query = "Python";
+        let content = "\
+            Rust es genial.
+            Aprender Rust es divertido.";
+
+        let results = search(query, content);
+
+        assert!(results.is_empty());
+    }
+
+    #[test]
+    fn test_search_partial_match() {
+        let query = "genial";
+        let content = "Rust es genial.";
+
+        let results = search(query, content);
+
+        assert_eq!(results, vec!["Rust es genial."]);
+    }
+}
